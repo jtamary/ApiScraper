@@ -4,8 +4,8 @@ from okscraper.base import BaseScraper
 from okscraper.sources import UrlSource
 from okscraper.storages import ListStorage
 import datetime
+from api_scraper.knesset_api_base_scraper import build_entries_soup
 
-    
 
 def build_entries_list(raw):
     entries = []

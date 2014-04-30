@@ -4,7 +4,7 @@
     <data-source source="LOCAL" name="Django default" uuid="17f0c601-2638-4bc6-93c6-02f9f5005963">
       <driver-ref>sqlite.xerial</driver-ref>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Users\tamary\Dropbox\Private\tests\ApiScraper\sqlite.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/sqlite.db</jdbc-url>
       <libraries />
     </data-source>
   </component>
