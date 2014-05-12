@@ -1,21 +1,10 @@
 from BeautifulSoup import BeautifulStoneSoup
-from api_scraper.models import BillType
 from okscraper.base import BaseScraper
 from okscraper.sources import UrlSource
 from okscraper.storages import ListStorage
-import datetime
-from api_scraper.knesset_api_base_scraper import build_entries_soup
+from api_scraper.knesset_api_base_scraper import KnessetApiBaseScraper
 
-
-def build_entries_list(raw):
-    entries = []
-    soup = BeautifulStoneSoup(raw)
-    for entry_properties in soup.findAll("m:properties"):
-        entry_dict = {}
-        for prop in entry_properties.findChildren():
-            entry_dict[prop.name[2:]] = prop.text
-        entries.append(entry_dict)
-    return entries
+from api_scraper.models import BillType
 
 class BillTypeStorage(ListStorage):
     _commitInterval = 1
@@ -29,19 +18,18 @@ class BillTypeStorage(ListStorage):
         super(BillTypeStorage, self)._addValueToData(data, value)
     
             
-class BillTypeScraper(BaseScraper):
+class BillTypeScraper(KnessetApiBaseScraper):
     
     def __init__(self):
-        super(BillTypeScraper, self).__init__(self)
-        self.source = UrlSource("http://online.knesset.gov.il/WsinternetSps/KnessetDataService/BillsData.svc/View_Bill_type")
+        super(BillTypeScraper, self).__init__('http://online.knesset.gov.il/WsinternetSps/KnessetDataService/BillsData.svc/View_bill(<<bill_id>>)/bill_type')
         self.storage = BillTypeStorage()
 
-    
-    def _scrape(self):
-        raw = self.source.fetch()
-        entries = build_entries_list(raw)
-        for entry in entries:
-            self.storage.store(entry)
-        
-BillTypeScraper().scrape()
+    def _scrape(self, bill_id):
+        raw = self.source.fetch(bill_id)
+
+        entries = self.build_entries_list(raw)
+        for props in entries:
+            self._getLogger().info('Scraped bill type data (bill id %s)', bill_id)
+            self.storage.store(props)
+
 print BillType.objects.all()

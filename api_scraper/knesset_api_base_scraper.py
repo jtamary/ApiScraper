@@ -1,17 +1,21 @@
+import re
+
 from BeautifulSoup import BeautifulStoneSoup
 from okscraper.base import BaseScraper
 from okscraper.sources import UrlSource
-import re
+
 
 SELF_CLOSING_TAGS = ['link', 'category']
 
 
 class KnessetApiBaseScraper(BaseScraper):
-
-    def __init__(self, base_svc, suffix):
+    """
+    This is the base class for every entity repository in the knesset API
+    Is scrapes the properties of any entity and it's linked entities links.
+    """
+    def __init__(self, url):
         super(KnessetApiBaseScraper, self).__init__()
-        self.base_svc = base_svc
-        self.source = UrlSource(base_svc  + suffix)
+        self.source = UrlSource(url)
 
     def build_entries_list(self, raw):
         entries = []
@@ -24,15 +28,8 @@ class KnessetApiBaseScraper(BaseScraper):
 
     def build_entry(self, entry_raw):
         soup = BeautifulStoneSoup(entry_raw, selfClosingTags=SELF_CLOSING_TAGS)
-        links = []
         props_dict = {}
-        for links_tag in soup.findAll('link'):
-            if links_tag['rel'] != 'edit': # this is a link to self
-                links_dict = {'title': links_tag['title'], 'params': re.findall(self.base_svc + links_tag['href'], '\(\d+\)')}
-                print links_dict
-                links.append(links_dict)
         entry_properties = soup.findAll('m:properties')[0]
         for prop in entry_properties.findChildren():
             props_dict[prop.name[2:]] = prop.text
-
-        return links, props_dict
+        return props_dict
